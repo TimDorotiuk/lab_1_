@@ -13,6 +13,33 @@ class Main {
         in.close();
 
         Process("input.txt", "output.txt", delimiter, conc);
+        System.out.print("Done...");
+    }
+    public static String ProcessWord(String word)
+    {
+        if(word.length() == 1) return word;
+        char quote = '"';
+        char space = ' ';
+        char[] wordArray = word.toCharArray();
+        // find the first non-space character
+        int i = 0;
+        while(i < wordArray.length)
+        {
+            if(wordArray[i] != space) break;
+            i++;
+        }
+        // find the last non-space character
+        int j = wordArray.length - 1;
+        while(j >= 0)
+        {
+            if(wordArray[j] != space) break;
+            j--;
+        }
+        if ((i < j) && (i < wordArray.length) && (j >= 0))
+            if (wordArray[i] == quote && wordArray[j] == quote)
+                word = word.substring(i + 1, j);
+
+        return word;
     }
     public static void Process(String inputFile, String outputFile, char delimiter, char conc) {
         char[] lineArray;
@@ -30,14 +57,19 @@ class Main {
             int i = 0;
             boolean isComment = false;
             boolean isIgnoreDelimiter = false;
+            boolean isEnd = false;
             if(line != null)
             {
                 lineArray = line.toCharArray();
-                while (true) {
+                while (!isEnd) {
                     if(lineArray[i] == delimiter && !isIgnoreDelimiter)
                     {
+                        // Print a word
+                        word = ProcessWord(word);
                         System.out.println(word);
                         outp.write(Integer.toString(word.length()));
+                        // end print
+
                         outp.write(conc);
                         word = "";
                         i++;
@@ -45,6 +77,7 @@ class Main {
                     else if(lineArray[i] == quote)
                     {
                         isIgnoreDelimiter = !isIgnoreDelimiter;
+                        word += quote;
                         i++;
                     }
                     else if(lineArray[i] == '/')
@@ -60,6 +93,10 @@ class Main {
                                 if(i >= lineArray.length)
                                 {
                                     line = inp.readLine();
+                                    if(line == null)
+                                    {
+                                        isEnd = true; break;
+                                    }
                                     lineArray = line.toCharArray();
                                     i = 0;
                                 }
@@ -72,6 +109,10 @@ class Main {
                                         if(i >= lineArray.length - 1)
                                         {
                                             line = inp.readLine();
+                                            if(line == null)
+                                            {
+                                                isEnd = true; break;
+                                            }
                                             lineArray = line.toCharArray();
                                             i = 0;
                                         }
@@ -93,14 +134,19 @@ class Main {
                     }
                     if(i >= lineArray.length)
                     {
+                        // Print a word
+                        word = ProcessWord(word);
                         System.out.println(word);
                         outp.write(Integer.toString(word.length()));
+                        // end print
+
                         outp.write('\n');
                         word = "";
 
                         line = inp.readLine();
                         if(line == null) break;
                         lineArray = line.toCharArray();
+                        isIgnoreDelimiter = false;
                         i = 0;
 
                     }
@@ -113,4 +159,5 @@ class Main {
             System.out.println(ex.getMessage());
         }
     }
+
 }
